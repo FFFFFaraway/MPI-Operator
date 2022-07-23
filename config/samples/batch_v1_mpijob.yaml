@@ -1,0 +1,26 @@
+apiVersion: batch.test.bdap.com/v1
+kind: MPIJob
+metadata:
+  name: mpijob-sample
+spec:
+  numWorkers: 2
+  launcherTemplate:
+    spec:
+      containers:
+        - name: hello
+          image: busybox
+          args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+      restartPolicy: OnFailure
+  workerTemplate:
+    spec:
+      containers:
+        - name: hello
+          image: busybox
+          args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+      restartPolicy: OnFailure
