@@ -91,7 +91,7 @@ func (in *MPIJobSpec) DeepCopyInto(out *MPIJobSpec) {
 	in.WorkerTemplate.DeepCopyInto(&out.WorkerTemplate)
 	if in.NumWorkers != nil {
 		in, out := &in.NumWorkers, &out.NumWorkers
-		*out = new(int64)
+		*out = new(int)
 		**out = **in
 	}
 }

@@ -32,6 +32,23 @@ type MPIJobReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+const (
+	configSuffix            = "-config"
+	configVolumeName        = "mpi-job-config"
+	configMountPath         = "/etc/mpi"
+	kubexecScriptName       = "kubexec.sh"
+	hostfileName            = "hostfile"
+	kubectlDeliveryName     = "kubectl-delivery"
+	kubectlTargetDirEnv     = "TARGET_DIR"
+	kubectlVolumeName       = "mpi-job-kubectl"
+	kubectlMountPath        = "/opt/kube"
+	launcherSuffix          = "-launcher"
+	workerSuffix            = "-worker"
+	initContainerCpu        = "100m"
+	initContainerEphStorage = "5Gi"
+	initContainerMem        = "512Mi"
+)
+
 //+kubebuilder:rbac:groups=batch.test.bdap.com,resources=mpijobs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=batch.test.bdap.com,resources=mpijobs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=batch.test.bdap.com,resources=mpijobs/finalizers,verbs=update
@@ -47,7 +64,6 @@ type MPIJobReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.2/pkg/reconcile
 func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-	logger.Info("Discover one MPIJob", "NamespacedName of req", req.NamespacedName)
 	var mpiJob batchv1.MPIJob
 	if err := r.Get(ctx, req.NamespacedName, &mpiJob); err != nil {
 		logger.Error(err, "unable to fetch MPIJob")
@@ -56,7 +72,35 @@ func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	logger.Info("Discover one MPIJob", "mpiJob body", mpiJob)
+	logger.Info("Discover one MPIJob")
+
+	if err := r.getOrCreateConfigMap(ctx, &mpiJob); err != nil {
+		logger.Error(err, "can't getOrCreateConfigMap")
+		return ctrl.Result{}, err
+	}
+	if err := r.getOrCreateLauncherServiceAccount(ctx, &mpiJob); err != nil {
+		logger.Error(err, "can't getOrCreateLauncherServiceAccount")
+		return ctrl.Result{}, err
+	}
+	if err := r.getOrCreateLauncherRole(ctx, &mpiJob); err != nil {
+		logger.Error(err, "can't getOrCreateLauncherRole")
+		return ctrl.Result{}, err
+	}
+	if err := r.getOrCreateLauncherRoleBinding(ctx, &mpiJob); err != nil {
+		logger.Error(err, "can't getOrCreateLauncherRoleBinding")
+		return ctrl.Result{}, err
+	}
+	worker, err := r.getOrCreateWorker(ctx, &mpiJob)
+	if err != nil {
+		logger.Error(err, "can't getOrCreateWorker")
+		return ctrl.Result{}, err
+	}
+	launcher, err := r.getOrCreateLauncher(ctx, &mpiJob)
+	if err != nil {
+		logger.Error(err, "can't getOrCreateLauncher")
+		return ctrl.Result{}, err
+	}
+	logger.Info("pod info", "worker", worker, "launcher", launcher)
 
 	return ctrl.Result{}, nil
 }

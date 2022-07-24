@@ -7076,7 +7076,6 @@ spec:
                     type: object
                 type: object
               numWorkers:
-                format: int64
                 type: integer
               workerTemplate:
                 description: PodTemplateSpec describes the data a pod should have
