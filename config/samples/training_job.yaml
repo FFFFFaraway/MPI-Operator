@@ -1,0 +1,43 @@
+apiVersion: batch.test.bdap.com/v1
+kind: MPIJob
+metadata:
+  name: simple-train
+  namespace: sw
+spec:
+  numWorkers: 3
+  launcherTemplate:
+    spec:
+      containers:
+        - args:
+            - sleep 1m && mkdir simple_ml && cd simple_ml && horovodrun -np 2 --hostfile
+              /etc/mpi/hostfile python main_with_horovod.py
+          command:
+            - /bin/sh
+            - -c
+          image: coreharbor.bdap.com/library/horovod-sw-base
+          name: horovod-master
+      restartPolicy: Never
+  workerTemplate:
+    spec:
+      containers:
+        - args:
+            - git -c http.sslVerify=false clone https://gitlab.bdap.com/faraway/simple_ml.git
+              && cd simple_ml && pip install -r requirements.txt && chmod +x init.sh
+              && ./init.sh && sleep infinity
+          command:
+            - /bin/sh
+            - -c
+          image: coreharbor.bdap.com/library/horovod-sw-base
+          name: horovod-worker
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+      dnsConfig:
+        nameservers:
+          - 10.105.222.6
+      dnsPolicy: None
+      tolerations:
+        - effect: NoSchedule
+          key: gpu
+          operator: Exists
+      restartPolicy: OnFailure

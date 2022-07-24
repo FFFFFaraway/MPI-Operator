@@ -13,14 +13,13 @@ spec:
             - /bin/sh
             - -c
             - date; echo Hello from the Kubernetes cluster
-      restartPolicy: OnFailure
+      restartPolicy: Never
   workerTemplate:
     spec:
       containers:
         - name: hello
           image: busybox
           args:
-            - /bin/sh
-            - -c
-            - date; echo Hello from the Kubernetes cluster
+            - sleep
+            - infinity
       restartPolicy: OnFailure
