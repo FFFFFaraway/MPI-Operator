@@ -128,7 +128,7 @@ func (r *MPIJobReconciler) getOrCreateLauncher(ctx context.Context, mpiJob *v1.M
 	err := r.Get(ctx, client.ObjectKey{Namespace: mpiJob.Namespace, Name: mpiJob.Name + launcherSuffix}, &launcher)
 	// If the worker Pod doesn't exist, we'll create it.
 	if errors.IsNotFound(err) {
-		newLauncher, err := newLauncher(mpiJob, "mpioperator/kubectl-delivery")
+		newLauncher, err := newLauncher(mpiJob, "coreharbor.bdap.com/sw/kubectl-delivery")
 		if err != nil {
 			return nil, err
 		}
