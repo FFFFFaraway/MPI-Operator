@@ -15,11 +15,10 @@ spec:
             - date; echo Hello from the Kubernetes cluster
       restartPolicy: Never
   workerTemplate:
-    spec:
-      containers:
-        - name: hello
-          image: busybox
-          args:
-            - sleep
-            - infinity
-      restartPolicy: OnFailure
+      spec:
+        containers:
+          - name: hello
+            image: busybox
+            args:
+              - sleep
+              - infinity

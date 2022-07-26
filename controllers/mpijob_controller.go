@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -74,6 +75,11 @@ func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 	logger.Info("Discover one MPIJob")
 
+	if mpiJob.Spec.NumWorkers == nil {
+		logger.Error(fmt.Errorf("WorkerTemplate Replicas is null"), "WorkerTemplate Replicas is null")
+		return ctrl.Result{}, nil
+	}
+
 	if err := r.getOrCreateConfigMap(ctx, &mpiJob); err != nil {
 		logger.Error(err, "can't getOrCreateConfigMap")
 		return ctrl.Result{}, err
@@ -96,7 +102,7 @@ func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
-	ready := workerReady(worker)
+	ready := worker.Status.ReadyReplicas == worker.Status.Replicas
 	if !ready {
 		logger.Info("workers not ready")
 		return ctrl.Result{RequeueAfter: 30 * time.Second}, nil

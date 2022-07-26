@@ -22,7 +22,7 @@ shift
 
 	slots := 1
 	var buffer bytes.Buffer
-	for i := 0; i < *mpiJob.Spec.NumWorkers; i++ {
+	for i := 0; i < int(*mpiJob.Spec.NumWorkers); i++ {
 		buffer.WriteString(fmt.Sprintf("%s%s-%d slots=%d\n", mpiJob.Name, workerSuffix, i, slots))
 	}
 

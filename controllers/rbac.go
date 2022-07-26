@@ -37,7 +37,7 @@ func newLauncherServiceAccount(mpiJob *v1.MPIJob) *corev1.ServiceAccount {
 // discover the MPIJob resource that 'owns' it.
 func newLauncherRole(mpiJob *v1.MPIJob) *rbacv1.Role {
 	var podNames []string
-	for i := 0; i < *mpiJob.Spec.NumWorkers; i++ {
+	for i := 0; i < int(*mpiJob.Spec.NumWorkers); i++ {
 		podNames = append(podNames, fmt.Sprintf("%s%s-%d", mpiJob.Name, workerSuffix, i))
 	}
 	return &rbacv1.Role{

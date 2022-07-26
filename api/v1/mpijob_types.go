@@ -27,7 +27,7 @@ type MPIJobSpec struct {
 
 	WorkerTemplate v1.PodTemplateSpec `json:"workerTemplate"`
 
-	NumWorkers *int `json:"numWorkers"`
+	NumWorkers *int32 `json:"numWorkers"`
 }
 
 // MPIJobStatus defines the observed state of MPIJob
