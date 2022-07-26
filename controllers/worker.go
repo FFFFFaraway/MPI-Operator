@@ -8,6 +8,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 	v1 "test.bdap.com/project/api/v1"
 )
 
@@ -24,7 +25,9 @@ func newWorker(mpiJob *v1.MPIJob, name string) *corev1.Pod {
 	}
 }
 
+// return pods, err, and success
 func (r *MPIJobReconciler) getOrCreateWorker(ctx context.Context, mpiJob *v1.MPIJob) ([]*corev1.Pod, error) {
+	logger := log.FromContext(ctx)
 	var workerPods []*corev1.Pod
 	for i := 0; i < *mpiJob.Spec.NumWorkers; i++ {
 		name := fmt.Sprintf("%s-%d", mpiJob.Name+workerSuffix, i)
@@ -48,14 +51,35 @@ func (r *MPIJobReconciler) getOrCreateWorker(ctx context.Context, mpiJob *v1.MPI
 		// If the worker is not controlled by this MPIJob resource, we should log
 		// a warning to the event recorder and return.
 		if !metav1.IsControlledBy(&worker, mpiJob) {
-			err := fmt.Errorf("worker pod is not controlled by this MPIJob resource")
-			return nil, err
+			logger.Info("WARN:Some worker pod is not controlled by this MPIJob resource. Skipping",
+				"Pod Name", worker.Name)
+			// we don't control this worker pod
+			continue
 		}
-		// [sw]: Because if the API server does not allow update for some reason, it will always try to update
-		//if err := r.Update(ctx, newWorker); err != nil {
-		//	return nil, err
-		//}
 		workerPods = append(workerPods, &worker)
 	}
 	return workerPods, nil
+}
+
+// IsPodReadyConditionTrue returns true if a pod is ready; false otherwise.
+func isPodReady(status corev1.PodStatus) bool {
+	if status.Conditions == nil {
+		return false
+	}
+	for _, c := range status.Conditions {
+		if c.Type == corev1.PodReady && c.Status == corev1.ConditionTrue {
+			return true
+		}
+	}
+	return false
+}
+
+func workerReady(workers []*corev1.Pod) bool {
+	for _, w := range workers {
+		if w.Status.Phase == corev1.PodRunning && isPodReady(w.Status) {
+			continue
+		}
+		return false
+	}
+	return true
 }

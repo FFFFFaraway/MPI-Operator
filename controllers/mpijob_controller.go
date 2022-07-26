@@ -22,8 +22,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
 	batchv1 "test.bdap.com/project/api/v1"
+	"time"
 )
 
 // MPIJobReconciler reconciles a MPIJob object
@@ -95,14 +95,20 @@ func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		logger.Error(err, "can't getOrCreateWorker")
 		return ctrl.Result{}, err
 	}
-	launcher, err := r.getOrCreateLauncher(ctx, &mpiJob)
+
+	ready := workerReady(worker)
+	if !ready {
+		logger.Info("workers not ready")
+		return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
+	}
+
+	_, err = r.getOrCreateLauncher(ctx, &mpiJob)
 	if err != nil {
 		logger.Error(err, "can't getOrCreateLauncher")
 		return ctrl.Result{}, err
 	}
-	logger.Info("pod info", "worker", worker, "launcher", launcher)
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: time.Minute}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

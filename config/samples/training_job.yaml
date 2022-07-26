@@ -9,8 +9,8 @@ spec:
     spec:
       containers:
         - args:
-            - sleep 1m && mkdir simple_ml && cd simple_ml && horovodrun -np 2 --hostfile
-              /etc/mpi/hostfile python main_with_horovod.py
+            - sleep 30s && mkdir simple_ml && cd simple_ml && horovodrun -np 2 --hostfile
+              $OMPI_MCA_orte_default_hostfile python main_with_horovod.py
           command:
             - /bin/sh
             - -c
