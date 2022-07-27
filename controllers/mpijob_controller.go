@@ -102,7 +102,7 @@ func (r *MPIJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
-	ready := worker.Status.ReadyReplicas == worker.Status.Replicas
+	ready := worker.Status.ReadyReplicas == *worker.Spec.Replicas
 	if !ready {
 		logger.Info("workers not ready")
 		return ctrl.Result{RequeueAfter: 30 * time.Second}, nil
