@@ -126,8 +126,15 @@ You need to **manually** delete the MPIJob task to avoid occupying GPU resources
 make undeploy
 ```
 
+## TODO List
+
+- Add MPIJob Status
+- Add Defaulter and Validator Webhook
+
 ## Docker Images
 
 - [Controller](https://hub.docker.com/r/farawaya/controller)
 - [Kubectl-delivery](https://hub.docker.com/r/farawaya/kubectl-delivery)
+- [Horovod-torch-cuda113](https://hub.docker.com/r/farawaya/horovod-torch-cuda113)
+- [Horovod-torch-cpu](https://hub.docker.com/r/farawaya/horovod-torch-cpu)
 
