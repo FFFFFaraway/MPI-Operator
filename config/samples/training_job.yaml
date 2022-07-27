@@ -9,8 +9,9 @@ spec:
     spec:
       containers:
         - args:
-            - sleep 30s && mkdir simple_ml && cd simple_ml && horovodrun -np 2 --hostfile
-              $OMPI_MCA_orte_default_hostfile python main_with_horovod.py
+            - sleep 30s && mkdir MPI-Operator && cd MPI-Operator &&
+              mkdir sample-python-train && cd sample-python-train &&
+              horovodrun -np 2 --hostfile $OMPI_MCA_orte_default_hostfile python main.py
           command:
             - /bin/sh
             - -c
@@ -21,9 +22,8 @@ spec:
     spec:
       containers:
         - args:
-            - git -c http.sslVerify=false clone https://gitlab.bdap.com/faraway/simple_ml.git
-              && cd simple_ml && pip install -r requirements.txt && chmod +x init.sh
-              && ./init.sh && sleep infinity
+            - git clone https://github.com/FFFFFaraway/MPI-Operator.git
+              && cd sample-python-train && pip install -r requirements.txt && sleep infinity
           command:
             - /bin/sh
             - -c
@@ -32,10 +32,6 @@ spec:
           resources:
             limits:
               nvidia.com/gpu: 1
-      dnsConfig:
-        nameservers:
-          - 10.105.222.6
-      dnsPolicy: None
       tolerations:
         - effect: NoSchedule
           key: gpu
