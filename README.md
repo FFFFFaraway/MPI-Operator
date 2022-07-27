@@ -48,56 +48,63 @@ You can create an MPI job by defining an `MPIJob` config file. For example:
 apiVersion: batch.test.bdap.com/v1
 kind: MPIJob
 metadata:
-  name: simple-train
+  name: simple-train-cpu
   namespace: sw-mpi-operator
 spec:
-  numWorkers: 3
+  numWorkers: 5
   launcherTemplate:
     spec:
       containers:
         - args:
-            - sleep 30s && mkdir MPI-Operator && cd MPI-Operator &&
-              mkdir sample-python-train && cd sample-python-train &&
+            - mkdir MPI-Operator &&
+              cd MPI-Operator &&
+              mkdir sample-python-train &&
+              cd sample-python-train &&
               horovodrun -np 2 --hostfile $OMPI_MCA_orte_default_hostfile python main.py
           command:
             - /bin/sh
             - -c
-          image: coreharbor.bdap.com/library/horovod-sw-base
+          image: farawaya/horovod-torch-cpu
           name: horovod-master
       restartPolicy: Never
   workerTemplate:
     spec:
       containers:
         - args:
-            - git clone https://github.com/FFFFFaraway/MPI-Operator.git
-              && cd sample-python-train && pip install -r requirements.txt && sleep infinity
+            - git clone https://github.com/FFFFFaraway/MPI-Operator.git &&
+              cd MPI-Operator &&
+              cd sample-python-train &&
+              pip install -r requirements.txt &&
+              touch /ready.txt &&
+              sleep infinity
           command:
             - /bin/sh
             - -c
-          image: coreharbor.bdap.com/library/horovod-sw-base
+          image: farawaya/horovod-torch-cpu
           name: horovod-worker
-          resources:
-            limits:
-              nvidia.com/gpu: 1
-      tolerations:
-        - effect: NoSchedule
-          key: gpu
-          operator: Exists
-      restartPolicy: OnFailure
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - /ready.txt
+            initialDelaySeconds: 30
+            periodSeconds: 5
 ```
 
 Deploy the `MPIJob` resource:
 
 ```bash
-kubectl apply -f config/samples/training_job.yaml
+kubectl apply -f config/samples/training_job_cpu.yaml
 ```
+
+Note that the launcher pod will use all workers (numWorkers in spec), the `-np`parameter after horovodrun does not seem to work.
 
 ## Monitoring an MPI Job
 
 You can inspect the logs to see the training progress. When the job starts, access the logs from the `launcher` pod:
 
 ```bash
-kubectl logs mpijob-sample-launcher -n sw-mpi-operator
+kubectl logs simple-train-cpu-launcher -n sw-mpi-operator
 ```
 
 ## Editing MPI Job
@@ -109,9 +116,11 @@ Modify and apply the MPIJob yaml file.
 
 ## Deleting MPI Job
 
-Delete the MPIJob yaml file. And all pods, configmaps, rbac will be automatically deleted.Uninstall
+Delete the MPIJob yaml file. And all pods, configmaps, rbac will be automatically deleted.
 
-UnDeploy the controller to the cluster:
+You need to **manually** delete the MPIJob task to avoid occupying GPU resources.
+
+## Uninstall
 
 ```sh
 make undeploy
