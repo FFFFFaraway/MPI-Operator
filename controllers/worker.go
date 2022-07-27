@@ -66,7 +66,7 @@ func (r *MPIJobReconciler) getOrCreateWorker(ctx context.Context, mpiJob *v1.MPI
 	// If the worker is not controlled by this MPIJob resource, we should log
 	// a warning to the event recorder and return.
 	if !metav1.IsControlledBy(&worker, mpiJob) {
-		logger.Info("WARN:Some worker pod is not controlled by this MPIJob resource. Skipping",
+		logger.Info("WARN:worker statefulset is not controlled by this MPIJob resource. Skipping",
 			"Pod Name", worker.Name)
 		// we don't control this worker pod
 		return nil, nil

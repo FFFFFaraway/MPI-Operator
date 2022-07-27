@@ -2,6 +2,7 @@ apiVersion: batch.test.bdap.com/v1
 kind: MPIJob
 metadata:
   name: mpijob-sample
+  namespace: sw-mpi-operator
 spec:
   numWorkers: 2
   launcherTemplate:

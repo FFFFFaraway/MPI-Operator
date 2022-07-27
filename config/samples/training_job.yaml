@@ -2,7 +2,7 @@ apiVersion: batch.test.bdap.com/v1
 kind: MPIJob
 metadata:
   name: simple-train
-  namespace: sw
+  namespace: sw-mpi-operator
 spec:
   numWorkers: 3
   launcherTemplate:
