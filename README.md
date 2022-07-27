@@ -1,94 +1,124 @@
-# my-mpi-operator
-// TODO(user): Add simple overview of use/purpose
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/FFFFFaraway/MPI-Operator/blob/main/LICENSE)
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+# MPI Operator
 
-## Getting Started
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
+A big part of this project is based on [MPI Operator in Kubeflow](https://github.com/kubeflow/mpi-operator). This project is a stripped down version written according to my own understanding using [kubebuilder](https://book.kubebuilder.io/).
+
+The MPI Operator makes it easy to run allreduce-style distributed training on Kubernetes. Please check out [this blog post](https://medium.com/kubeflow/introduction-to-kubeflow-mpi-operator-and-industry-adoption-296d5f2e6edc) for an introduction to MPI Operator and its industry adoption.
+
+## Installation
+
+You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster. You’ll need [kustomize](https://github.com/kubernetes-sigs/kustomize) installed.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
-### Running on the cluster
-1. Install Instances of Custom Resources:
+You can deploy the operator by running the following commands. By default, we will create a namespace 'sw-mpi-operator' and deploy everything in it.
 
-```sh
-kubectl apply -f config/samples/
+```bash
+git clone https://github.com/FFFFFaraway/MPI-Operator
+cd mpi-operator
+make deploy
 ```
 
-2. Build and push your image to the location specified by `IMG`:
-	
-```sh
-make docker-build docker-push IMG=<some-registry>/my-mpi-operator:tag
-```
-	
-3. Deploy the controller to the cluster with the image specified by `IMG`:
+You can check whether the MPI Job custom resource is installed via:
 
-```sh
-make deploy IMG=<some-registry>/my-mpi-operator:tag
+```bash
+kubectl get crd
 ```
 
-### Uninstall CRDs
-To delete the CRDs from the cluster:
+The output should include `mpijobs.batch.test.bdap.com` like the following:
 
-```sh
-make uninstall
+```bash
+NAME                                       AGE
+...
+mpijobs.batch.test.bdap.com                4d
+...
 ```
 
-### Undeploy controller
+You can check whether the MPI Job Operator is running via:
+
+```bash
+kubectl get pod -n sw-mpi-operator
+```
+
+## Creating an MPI Job
+
+You can create an MPI job by defining an `MPIJob` config file. For example:
+
+```yaml
+apiVersion: batch.test.bdap.com/v1
+kind: MPIJob
+metadata:
+  name: simple-train
+  namespace: sw-mpi-operator
+spec:
+  numWorkers: 3
+  launcherTemplate:
+    spec:
+      containers:
+        - args:
+            - sleep 30s && mkdir MPI-Operator && cd MPI-Operator &&
+              mkdir sample-python-train && cd sample-python-train &&
+              horovodrun -np 2 --hostfile $OMPI_MCA_orte_default_hostfile python main.py
+          command:
+            - /bin/sh
+            - -c
+          image: coreharbor.bdap.com/library/horovod-sw-base
+          name: horovod-master
+      restartPolicy: Never
+  workerTemplate:
+    spec:
+      containers:
+        - args:
+            - git clone https://github.com/FFFFFaraway/MPI-Operator.git
+              && cd sample-python-train && pip install -r requirements.txt && sleep infinity
+          command:
+            - /bin/sh
+            - -c
+          image: coreharbor.bdap.com/library/horovod-sw-base
+          name: horovod-worker
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+      tolerations:
+        - effect: NoSchedule
+          key: gpu
+          operator: Exists
+      restartPolicy: OnFailure
+```
+
+Deploy the `MPIJob` resource:
+
+```bash
+kubectl apply -f config/samples/training_job.yaml
+```
+
+## Monitoring an MPI Job
+
+You can inspect the logs to see the training progress. When the job starts, access the logs from the `launcher` pod:
+
+```bash
+kubectl logs mpijob-sample-launcher -n sw-mpi-operator
+```
+
+## Editing MPI Job
+
+Modify and apply the MPIJob yaml file.
+
+- However, if the Launcher is modified, then you need to manually delete the existing Launcher Pod to trigger the update.
+- If the Worker is modified, there is no need to delete Worker Pod manually. It will be automatically updated.
+
+## Deleting MPI Job
+
+Delete the MPIJob yaml file. And all pods, configmaps, rbac will be automatically deleted.Uninstall
+
 UnDeploy the controller to the cluster:
 
 ```sh
 make undeploy
 ```
 
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+## Docker Images
 
-### How it works
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
-
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
-which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
-
-### Test It Out
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
-
-```sh
-make run
-```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
-
-```sh
-make manifests
-```
-
-**NOTE:** Run `make --help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2022.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+- [Controller](https://hub.docker.com/r/farawaya/controller)
+- [Kubectl-delivery](https://hub.docker.com/r/farawaya/kubectl-delivery)
 
