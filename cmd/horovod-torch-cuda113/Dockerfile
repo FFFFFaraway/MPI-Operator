@@ -33,8 +33,7 @@ RUN apt-get update --allow-insecure-repositories && apt-get install -y --allow-u
 
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-RUN pip install future typing packaging numpy \
-    https://download.pytorch.org/whl/cu113/torch-1.11.0+cu113-cp38-cp38-linux_x86_64.whl
+RUN pip install future typing packaging numpy https://download.pytorch.org/whl/cu113/torch-1.11.0%2Bcu113-cp38-cp38-linux_x86_64.whl
 
 RUN HOROVOD_GPU_OPERATIONS=NCCL \
     HOROVOD_WITH_PYTORCH=1 \
