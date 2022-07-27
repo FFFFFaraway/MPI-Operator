@@ -12,8 +12,8 @@ from torch.utils.data.distributed import DistributedSampler
 def train_func():
     hvd.init()
 
-    train_tensor = torch.tensor(pickle.load(open('train.csv', 'r')), dtype=torch.float)
-    test_tensor = torch.tensor(pickle.load(open('test.csv', 'r')), dtype=torch.float)
+    train_tensor = torch.tensor(pickle.load(open('train.csv', 'rb')), dtype=torch.float)
+    test_tensor = torch.tensor(pickle.load(open('test.csv', 'rb')), dtype=torch.float)
 
     train_dataset = TensorDataset(train_tensor[:, :-1], train_tensor[:, -1:])
     test_dataset = TensorDataset(test_tensor[:, :-1], test_tensor[:, -1:])

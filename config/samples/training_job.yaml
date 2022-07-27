@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - args:
-            - git clone https://github.com/FFFFFaraway/MPI-Operator.git
+            - git clone https://github.com/FFFFFaraway/MPI-Operator.git && cd MPI-Operator
               && cd sample-python-train && pip install -r requirements.txt && sleep infinity
           command:
             - /bin/sh
