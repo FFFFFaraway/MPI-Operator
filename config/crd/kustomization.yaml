@@ -2,7 +2,8 @@
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
 resources:
-- bases/batch.test.bdap.com_mpijobs.yaml
+#- bases/batch.test.bdap.com_mpijobs.yaml
+- bases/added-x-kubernetes-preserve-unknown-fields.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
