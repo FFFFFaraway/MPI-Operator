@@ -130,8 +130,7 @@ make undeploy
 
 - Add MPIJob Status
 - Add Defaulter and Validator Webhook
-- Add scheduler
-- Keep learning
+- ~~Add scheduler~~
 
 ## Docker Images
 
