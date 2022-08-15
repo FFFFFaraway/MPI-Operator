@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	batchv1 "test.bdap.com/project/api/v1"
+	batchv1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	//+kubebuilder:scaffold:imports
 )
 

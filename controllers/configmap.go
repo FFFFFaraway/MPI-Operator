@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	v1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	v1 "test.bdap.com/project/api/v1"
 )
 
 func newConfigMap(mpiJob *v1.MPIJob) *corev1.ConfigMap {

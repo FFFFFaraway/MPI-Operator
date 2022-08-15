@@ -19,11 +19,11 @@ package controllers
 import (
 	"context"
 	"fmt"
+	batchv1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	batchv1 "test.bdap.com/project/api/v1"
 	"time"
 )
 

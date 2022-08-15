@@ -2,7 +2,7 @@ domain: test.bdap.com
 layout:
 - go.kubebuilder.io/v3
 projectName: my-mpi-operator
-repo: test.bdap.com/project
+repo: github.com/FFFFFaraway/MPI-Operator
 resources:
 - api:
     crdVersion: v1
@@ -11,6 +11,6 @@ resources:
   domain: test.bdap.com
   group: batch
   kind: MPIJob
-  path: test.bdap.com/project/api/v1
+  path: github.com/FFFFFaraway/MPI-Operator/api/v1
   version: v1
 version: "3"

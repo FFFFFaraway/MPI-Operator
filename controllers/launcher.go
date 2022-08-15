@@ -3,13 +3,13 @@ package controllers
 import (
 	"context"
 	"fmt"
+	v1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	v1 "test.bdap.com/project/api/v1"
 )
 
 func newLauncher(mpiJob *v1.MPIJob, kubectlDeliveryImage string) (*corev1.Pod, error) {

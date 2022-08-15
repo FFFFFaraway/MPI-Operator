@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	v1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -9,7 +10,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	v1 "test.bdap.com/project/api/v1"
 )
 
 func newWorker(mpiJob *v1.MPIJob) *appsv1.StatefulSet {

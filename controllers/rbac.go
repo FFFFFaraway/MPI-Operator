@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	v1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -10,7 +11,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	v1 "test.bdap.com/project/api/v1"
 )
 
 func getObjectMeta(mpiJob *v1.MPIJob, suffix string) metav1.ObjectMeta {

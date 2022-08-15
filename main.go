@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	batchv1 "test.bdap.com/project/api/v1"
-	"test.bdap.com/project/controllers"
+	batchv1 "github.com/FFFFFaraway/MPI-Operator/api/v1"
+	"github.com/FFFFFaraway/MPI-Operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
