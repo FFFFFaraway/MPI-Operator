@@ -7,12 +7,13 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 var helmCmd = []string{"helm"}
 
-func InstallRelease(name string, namespace string, values interface{}, chartName string) error {
+const chartName = "https://github.com/FFFFFaraway/MPI-Operator/raw/main/charts/mpijob/mpijob-0.1.0.tgz"
+
+func InstallRelease(name string, namespace string, values interface{}) error {
 	binary, err := exec.LookPath(helmCmd[0])
 	if err != nil {
 		return err
@@ -34,16 +35,9 @@ func InstallRelease(name string, namespace string, values interface{}, chartName
 		return err
 	}
 
-	// 3. check if the chart file exists, if it's unix path, then check if it's exist
-	if strings.HasPrefix(chartName, "/") {
-		if _, err = os.Stat(chartName); os.IsNotExist(err) {
-			// TODO: the chart will be put inside the binary in future
-			return err
-		}
-	}
-
+	// example: helm install -f /var/folders/dt/tqr6182j6bn5bxpk57m026y80000gn/T/values464191150 --namespace sw test https://github.com/FFFFFaraway/MPI-Operator/raw/main/charts/mpijob/mpijob-0.1.0.tgz
 	// 4. prepare the arguments
-	args := []string{"install", "-f", valueFile.Name(), "--namespace", namespace, "--generate-name", chartName}
+	args := []string{"install", "-f", valueFile.Name(), "-n", namespace, name, chartName}
 	log.Debugf("Exec %s, %v", binary, args)
 
 	// return syscall.Exec(cmd, args, env)
@@ -64,6 +58,24 @@ func InstallRelease(name string, namespace string, values interface{}, chartName
 		}
 	}
 
+	return nil
+}
+
+func DeleteRelease(name, namespace string) error {
+	binary, err := exec.LookPath(helmCmd[0])
+	if err != nil {
+		return err
+	}
+
+	args := []string{"uninstall", name, "-n", namespace}
+
+	cmd := exec.Command(binary, args...)
+	out, err := cmd.CombinedOutput()
+	fmt.Println("")
+	fmt.Printf("%s\n", string(out))
+	if err != nil {
+		log.Fatalf("Failed to execute %s, %v with %v", binary, args, err)
+	}
 	return nil
 }
 

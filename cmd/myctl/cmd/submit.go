@@ -1,19 +1,9 @@
 package cmd
 
 import (
-	"context"
-	"flag"
 	"fmt"
 	"github.com/FFFFFaraway/MPI-Operator/cmd/myctl/utils"
 	"github.com/spf13/cobra"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
-	"path/filepath"
 	"strings"
 )
 
@@ -29,35 +19,7 @@ type SubmitArgs struct {
 	GpuPerWorker int    `yaml:"gpuPerWorker"`
 }
 
-var (
-	submitArgs   SubmitArgs
-	restConfig   *rest.Config
-	clientConfig clientcmd.ClientConfig
-	clientset    *kubernetes.Clientset
-)
-
-func createNamespace(client *kubernetes.Clientset, namespace string) error {
-	ns := &v1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-		},
-	}
-	_, err := client.CoreV1().Namespaces().Create(context.TODO(), ns, metav1.CreateOptions{})
-	return err
-}
-
-func ensureNamespace(ns string) error {
-	_, err := clientset.CoreV1().Namespaces().Get(context.TODO(), ns, metav1.GetOptions{})
-	if err != nil && errors.IsNotFound(err) {
-		if err = createNamespace(clientset, ns); err != nil {
-			return err
-		}
-	}
-	if err != nil {
-		return err
-	}
-	return nil
-}
+var submitArgs SubmitArgs
 
 // submitCmd represents the submit command
 var submitCmd = &cobra.Command{
@@ -81,38 +43,18 @@ var submitCmd = &cobra.Command{
 			fmt.Println("command needed")
 			return
 		}
-		if err := ensureNamespace(submitArgs.NameSpace); err != nil {
+		if err := utils.EnsureNamespace(submitArgs.NameSpace); err != nil {
 			return
 		}
-		if err := utils.InstallRelease(submitArgs.Name, submitArgs.NameSpace, submitArgs, "../../charts/mpijob"); err != nil {
+		if err := utils.InstallRelease(submitArgs.Name, submitArgs.NameSpace, submitArgs); err != nil {
 			fmt.Println("helm install error", err)
 			return
 		}
 	},
 }
 
-func initKubeClient() error {
-	var kubeconfig *string
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// create the clientset
-	clientset, err = kubernetes.NewForConfig(config)
-	return err
-}
-
 func init() {
-	if err := initKubeClient(); err != nil {
+	if err := utils.InitKubeClient(); err != nil {
 		return
 	}
 	rootCmd.AddCommand(submitCmd)
