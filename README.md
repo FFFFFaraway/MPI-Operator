@@ -58,10 +58,9 @@ spec:
     spec:
       containers:
         - args:
-            - mkdir MPI-Operator &&
-              cd MPI-Operator &&
-              mkdir sample-python-train &&
+            - mkdir sample-python-train &&
               cd sample-python-train &&
+              horovodrun -np 2 --hostfile $OMPI_MCA_orte_default_hostfile python generate_data.py &&
               horovodrun -np 2 --hostfile $OMPI_MCA_orte_default_hostfile python main.py
           command:
             - /bin/sh
@@ -73,8 +72,7 @@ spec:
     spec:
       containers:
         - args:
-            - git clone https://github.com/FFFFFaraway/MPI-Operator.git &&
-              cd MPI-Operator &&
+            - git clone https://github.com/FFFFFaraway/sample-python-train.git &&
               cd sample-python-train &&
               pip install -r requirements.txt &&
               touch /ready.txt &&
