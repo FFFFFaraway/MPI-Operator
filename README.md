@@ -1,4 +1,5 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/FFFFFaraway/MPI-Operator/blob/main/LICENSE)
+[![Go Reference](https://pkg.go.dev/badge/github.com/FFFFFaraway/MPI-Operator.svg)](https://pkg.go.dev/github.com/FFFFFaraway/MPI-Operator)
 [![Go](https://github.com/FFFFFaraway/MPI-Operator/actions/workflows/go.yml/badge.svg)](https://github.com/FFFFFaraway/MPI-Operator/actions/workflows/go.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/FFFFFaraway/MPI-Operator)](https://goreportcard.com/report/github.com/FFFFFaraway/MPI-Operator)
 
