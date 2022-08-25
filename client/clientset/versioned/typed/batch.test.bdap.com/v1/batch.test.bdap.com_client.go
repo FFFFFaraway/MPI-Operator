@@ -18,7 +18,7 @@ limitations under the License.
 package v1
 
 import (
-	"client/clientset/versioned/scheme"
+	"github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned/scheme"
 	"net/http"
 
 	v1 "github.com/FFFFFaraway/MPI-Operator/api/batch.test.bdap.com/v1"
