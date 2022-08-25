@@ -18,8 +18,8 @@ limitations under the License.
 package v1
 
 import (
-	scheme "client/clientset/versioned/scheme"
 	"context"
+	scheme "github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned/scheme"
 	"time"
 
 	v1 "github.com/FFFFFaraway/MPI-Operator/api/batch.test.bdap.com/v1"

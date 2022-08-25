@@ -18,7 +18,7 @@ limitations under the License.
 package fake
 
 import (
-	v1 "client/clientset/versioned/typed/batch.test.bdap.com/v1"
+	v1 "github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned/typed/batch.test.bdap.com/v1"
 
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"

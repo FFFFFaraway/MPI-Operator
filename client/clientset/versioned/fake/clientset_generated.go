@@ -18,9 +18,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "client/clientset/versioned"
-	batchv1 "client/clientset/versioned/typed/batch.test.bdap.com/v1"
-	fakebatchv1 "client/clientset/versioned/typed/batch.test.bdap.com/v1/fake"
+	clientset "github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned"
+	batchv1 "github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned/typed/batch.test.bdap.com/v1"
+	fakebatchv1 "github.com/FFFFFaraway/MPI-Operator/client/clientset/versioned/typed/batch.test.bdap.com/v1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
